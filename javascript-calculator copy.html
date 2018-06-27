@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <!-- developed by luigi benvenuti - luigibenvenuti.com -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>JavaScript Calculator</title>
+  <meta name="description" content="An online calculator built with HTML, CSS and JavaScript.">
+  <meta name="keywords" content="calculator, javascript calculator, online calculator, front end development, app, web app">
+  <link rel="stylesheet" href="css/normalize.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700" rel="stylesheet">
+</head>
+
+<body>
+
+  <h1>Split Cost Calculator</h1>
+
+  <div class="container">
+    <div class="output">
+      <div id="clearAll"></div>
+      <p id="result">0</p>
+      <p id="expression">0</p>
+    </div>
+    <!-- result ends -->
+
+    <div class="inputs"></div>
+
+    <div id="buttons">
+      <div class="numbers">
+
+        <button class="btn btn-num">7</button>
+        <button class="btn btn-num">8</button>
+        <button class="btn btn-num">9</button>
+
+        <button class="btn btn-num">4</button>
+        <button class="btn btn-num">5</button>
+        <button class="btn btn-num">6</button>
+
+        <button class="btn btn-num">1</button>
+        <button class="btn btn-num">2</button>
+        <button class="btn btn-num">3</button>
+
+        <button class="btn btn-num">.</button>
+        <button class="btn btn-num">0</button>
+        <button class="btn btn-num">=</button>
+
+      </div>
+      <!-- numbers end -->
+
+      <div class="operators">
+        <button class="btn btn-opr">ac</button>
+        <button class="btn btn-opr">/</button>
+        <button class="btn btn-opr">x</button>
+        <button class="btn btn-opr">-</button>
+        <button class="btn btn-opr">+</button>
+      </div>
+      
+        <div class="operators">
+        <button class="btn btn-opr" onclick="receiveCheckInfo()">Split Check</button>
+        <button class="btn btn-opr">Check total</button>
+        <button class="btn btn-opr" onclick="enter()">Enter</button>
+        <button id="resetButton" class="btn btn-opr">Reset</button>
+      </div>
+
+
+
+      <!-- operators end -->
+       <div class="operators">
+        <button class="btn btn-opr" onclick="equalCheck()">Split Equally</button>
+        <button class="btn btn-opr" onclick="splitAmount()">Split Amount</button>
+        <button class="btn btn-opr" onclick="percentage()">Split Percentage</button>
+        <button class="btn btn-opr">Tip</button>
+      </div>
+      </div>
+
+    </div>
+    <!-- buttons end -->
+
+  </div>
+  <!-- container ends -->
+
+  <!-- <script src="js/main.js"></script> -->
+    <form name="myform">
+    <input type="radio" name ="splitby" value="Equally" checked> Split Equally 
+    <br>
+      <input type="radio" name="splitby" value="Amount"> Split by Amount <br>
+      <input type="radio" name="splitby" value="Percentage">Split by percentage <br>
+
+    Enter Amount Check :
+    <input id="chktotal" type="number" placeholder="Enter Amount Check"><br>
+    Enter Amount People :
+    <input id="peototal" type="number" placeholder="Enter Amount People"><br>
+
+    
+    Tips :
+    
+    <select id="select1">
+        <option  value="0"> 0% </option>
+        <option  value="5"> 5% </option>
+        <option  value="10"> 10% </option>
+        <option  value="15"> 15% </option>
+        <option  value="20"> 20%</option>
+        <option  value="25"> 25%</option>
+    </select><br>
+    
+<br>
+    <input id="addpeo"type="number" placeholder="additional person">
+    <input type="button" value="Submit" onclick="equalCheck()">
+    <input type="button" value="add person" onclick="addPerson()">
+    <input id="person" type="text" placeholder="Enter Person">
+    <h1 id="result"></h1>
+    <h2 id="message"></h2>
+    <div id="container"></div>
+
+    <button type="reset" value="Reset">Reset</button>
+  </form>
+
+    <script>
+      var totalchk=document.getElementById("chktotal");
+      var tip= 0;
+      var peopleEntered= document.getElementById("peototal");
+      var subNum;
+
+      var btn = document.getElementsByClassName('btn');
+      var clearAll = document.getElementById('resetButton');
+      var result = document.getElementById('result');
+      var expression = document.getElementById('expression');
+      var sequence = '';
+      var persons = 1;
+
+// Buttons event listener
+for (i = 0; i < btn.length; i++) {
+  if(btn[i].textContent == 'Split Check' || btn[i].textContent == 'Check total'|| btn[i].textContent == 'Enter' || btn[i].textContent == 'Reset'){
+    continue;
+  }
+  else if (btn[i].addEventListener) {
+    btn[i].addEventListener('click', type, false);
+  } else {
+    btn[i].attachEvent('onclick', type);
+  }
+}
+
+// Clear All button event listener
+if (clearAll.addEventListener) {
+  clearAll.addEventListener('click', clear, false);
+} else {
+  clearAll.attachEvent('onclick', clet);
+}
+
+// Get the event target
+function getTarget(e) {
+  if (!e) {
+    e = window.event;
+  }
+  return e.target || e.srcElement;
+}
+
+// When buttons are clicked, type buttons' text
+function type(e) {
+  e = getTarget(e);
+
+  if (e.textContent !== '=' && e.textContent !== 'del' && e.textContent !== 'x') {
+    sequence += e.textContent;
+    expression.textContent = sequence.replace(/\*/g, 'x');
+
+  } else if (e.textContent === 'x') {
+    sequence += '*';
+    expression.textContent = sequence.replace(/\*/g, 'x');
+
+  } else if (e.textContent === '=') {
+    // Check if numbers are written correctly (not more than a decimal point per number)
+    var point = 0; // decimal points counter
+    // Loop through the sequence looking for decimal points
+    for (j = 0; j < sequence.length; j++) {
+      var char = sequence[j]; // char = current character
+
+      if (char === '.') {
+        point++;
+
+        if (point > 1) {
+          result.textContent = 'Error: more than one decimal point per number';
+          return;
+        }
+
+        // If char is an operand, reset the point counter
+      } else if (char === '*' || char === '/' || char === '+' || char === '-') {
+        point = 0;
+      }
+    }
+
+    // Try eval and check if it return an error
+    try {
+      result.textContent = eval(sequence);
+      sequence = eval(sequence);
+    } catch (err) {
+      result.textContent = 'Error: too many operands';
+      return;
+    }
+
+  } else if (e.textContent === 'del') {
+    // If sequence is still a string (not a number result from eval)
+    if (typeof sequence === 'string' && expression.textContent.length > 1) {
+      sequence = sequence.slice(0, -1);
+      expression.textContent = sequence.replace(/\*/g, 'x');
+
+    } else {
+      sequence = '';
+      expression.textContent = '0';
+      result.textContent = '0';
+    }
+  }
+}
+
+    function clear() {
+    sequence = '';
+    expression.textContent = '0';
+    result.textContent = '0';
+    }
+
+    console.log();
+
+     // function displaynum(n1){
+      //  calcform.text1.value = calcform.text1.value + n1;
+     // }
+
+     function receiveCheckInfo(){
+      result.textContent = 'Enter Total Check';
+      expression.textContent = '';
+
+     }
+
+     function enter(){
+      if(result.textContent == 'Enter Total Check'){
+        totalchk = parseFloat(expression.textContent);
+        result.textContent = 'Enter Tip percentage';
+      }
+      else if(result.textContent == 'Enter Tip percentage'){
+        tip = parseFloat(expression.textContent);
+        result.textContent = 'Enter amount of people';
+      }
+      else if(result.textContent == 'Enter amount of people'){
+        peopleEntered = parseFloat(expression.textContent);
+        result.textContent = 'Choose Split equally, by amount, or percentage';
+      }
+      else if( result.textContent.match(/Enter Person \d Amount/) ){
+        peopleEntered = parseFloat(expression.textContent);
+        result.textContent = 'Choose Split equally, by amount, or percentage';
+      }
+      else{
+
+      }
+      expression.textContent = '';
+      sequence = '';
+     }
+
+      
+
+      function equalCheck(){
+        // var total=parseInt(document.getElementById("chktotal").value);
+        // var people = parseInt(document.getElementById("peototal").value);
+
+        // var sel=document.getElementById("select1");
+        // var tipP=parseInt(sel.options[sel.selectedIndex].value);
+
+        //parseInt()function takes string and returns it as a number
+        var tipCheck = totalchk*(tip/100);
+
+        //console.log(people+"hh");
+        var splitAmount = ((tipCheck+totalchk)/peopleEntered).toFixed(2);
+
+        result.textContent = "Equal amount per Person "+ "$" + splitAmount;
+
+        
+      }
+
+      function percentage(){
+        var newPercentage = (parseInt(this.value)/100 );
+        this.insertAdjacentHTML("afterend", " $ " + newPercentage * parseFloat(totalchk.value));
+        console.log(newPercentage * parseFloat(totalchk.value));
+
+      }
+
+      function addPerson(){
+        var number=document.getElementById("peototal").value;
+        var container = document.getElementById("container");
+        while(container.hasChildNodes()){
+          containter.removeChild(container.lastchild);
+        } 
+
+        for(i=0;i <number; i++){
+          container.appendChild(document.createTextNode("Person"));
+          var input=document.createElement("input");
+          input.type="text";
+          input.placeholder = "Enter Person"
+
+          if(myform.splitby.value == "Amount"){
+            input.addEventListener("change",splitAmount)  
+          }
+          if(myform.splitby.value == "Percentage"){
+            input.addEventListener("change",percentage) 
+          }
+          
+          container.appendChild(input);
+          container.appendChild(document.createElement("br"));
+        }
+
+        subNum = totalchk.value;
+      }
+
+      function splitAmount(){
+        result.textContent= 'Enter Person 1 Amount';
+
+        for(var i = 0; i < peopleEntered; i++){
+          
+        }
+        // this key word means this particular element that I am working with
+        subNum = subNum - this.value
+        document.getElementById("message").innerHTML= subNum
+      }
+
+      //function buttonThree(){
+      //   if (myform.splitby.value == "Equally"){
+            //input.addEventListener("change",equalCheck)
+      
+      //}else {
+      //  addPerson();
+      //}
+
+
+      //add();
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<style type="text/css">
+		table, tr,th{
+			border: solid 5px black;
+			margin-left: auto;
+			margin-right: auto;
+		}
+
+		th{
+			height: 200px;
+			width: 200px;
+			font-size: 400%;
+		}
+
+		th:hover{
+			background-color: blue; 
+
+		}
+	</style>
+
+</head>
+<body>
+
+	<table>
+		<!-- tr is for the row, Td/th Table data or Table head, you make it within the table row. -->
+		<tr>
+			<th onclick="makeMove(this)"></th>
+			<th onclick="makeMove(this)"></th>
+			<th onclick="makeMove(this)"></th>
+		</tr>
+		<tr>
+			<th onclick="makeMove(this)"></th>
+			<th onclick="makeMove(this)"></th>
+			<th onclick="makeMove(this)"></th>
+		</tr>
+
+		<tr>
+			<th onclick="makeMove(this)"></th>
+			<th onclick="makeMove(this)"></th>
+			<th onclick="makeMove(this)"></th>
+		</tr>
+	</table>
+	<script>
+		var player = 'X';
+		var gameWon = false;
+		
+		function makeMove(box){
+		// Check if move was made on this box	
+			
+			if (box.innerHTML == '' ) {
+				box.innerHTML = player;
+				evalBoard();
+				
+				if(player == 'X'){
+					player = 'O'
+
+				}else{
+					player = 'X'
+				}
+				
+			}
+			
+		}
+
+		function evalBoard(){
+			var board = document.getElementsByTagName('th');
+			var caseh1 = board[0].innerHTML!=''&& board[0].innerHTML == board[1].innerHTML && board[1].innerHTML == board[2].innerHTML;
+			var caseh2 = board[3].innerHTML!=''&& board[3].innerHTML == board[4].innerHTML && board[4].innerHTML == board[5].innerHTML;
+			var caseh3 = board[6].innerHTML!=''&& board[6].innerHTML == board[7].innerHTML && board[7].innerHTML == board[8].innerHTML;
+			var caseh4 =board[0].innerHTML!=''&&  board[0].innerHTML == board[3].innerHTML && board[3].innerHTML == board[6].innerHTML;
+			var caseh5 = board[1].innerHTML!=''&& board[1].innerHTML == board[4].innerHTML && board[4].innerHTML == board[7].innerHTML;
+			var caseh6 = board[2].innerHTML!=''&& board[2].innerHTML == board[5].innerHTML && board[5].innerHTML == board[8].innerHTML;
+			var caseh7 = board[0].innerHTML!=''&& board[0].innerHTML == board[4].innerHTML && board[4].innerHTML == board[8].innerHTML;
+			var caseh8 = board[2].innerHTML!=''&&  board[2].innerHTML == board[4].innerHTML && board[4].innerHTML == board[6].innerHTML;
+
+			//Check to see if case is true; if player is "X" winner is "0"else winner is 'x'
+			if(caseh1 || caseh2 || caseh3 || caseh4 || caseh5 || caseh6 || caseh7 || caseh8){
+				alert('HOORAY ' + player + ' WON!!!');
+				gameWon = true;
+				resetBoard();
+
+			}
+		}
+
+		function resetBoard(){
+			gameWon = false;
+			player = 'X';
+		// how do you make all 'th' elements into an empty string
+		// makeing a for loop to check the whole board
+		// we add our function after it checks and after the alter
+		    var board = document.getElementsByTagName('th');
+			for(var i = 0; i < board.length; i++){
+				board[i].innerHTML = '';
+
+			}		
+
+		}
+
+	</script>
+	<input type="button" id="myButton"  value="reset" onclick="resetBoard()"></input>
+</body>
+</html>
+
+<!--
+	game with 3x3 grid
+	two players X and O
+
+	making a move
+		Happens when the "TH" is clicked;
+			Display the players symbol on the 'th'
+			change player symbol to other player
+	
+	To win you need 3 X's or O's in a row
+	vertically, horizontally, or Diagonally
+	When no more moves to make it's a draw (after 9 turns)
+	
+	X goes First.  Then player alternate turns
+		create variable to hold players symbol
+		depending on whose turn it is, change the value of players symbol
+		to be whoever turn it is
+			When its the next persons turn to go
+			if players symbol is X
+				change it to O
+			else
+				change to X
+	documents.getElementsByTagName('th')
+	0 1 2
+	3 4 5
+	6 7 8
+
+	how do we check if we won.
+	define var board = document.getElementsByTagName()
+		board[0] gets the index of 
+
+		Horizontal wins
+		0 == 1 && 1 == 2
+		3 == 4 && 4 == 5
+		6 == 7 && 7 == 8
+
+		vertical wins
+
+		0 == 3 && 3 == 6
+		1 == 4 && 4 == 7
+		2 == 5 && 5 == 8
+
+		Diagonal
+
+		0 == 4 && 4 == 8
+		2 == 4 && 4 == 6
+
+		Resetting the board
+
+			create a reset function
+			set all innerhtml of the 'th' to an empty string
+			set player to X 
